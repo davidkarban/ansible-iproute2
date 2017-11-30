@@ -1,0 +1,28 @@
+---
+# tasks file for iproute2
+- name: Ensure routing tables are updated
+  lineinfile:
+    name: /etc/iproute2/rt_tables
+    regexp: '^{{ item.id }}'
+    # beware, there is tab on next line and it must be tab
+    line: "{{ item.id }}	{{ item.table }}"
+  with_items:
+    - "{{ iproute2_interfaces }}"
+
+- name: Ensure route files are on the server.
+  template:
+    src: "route.j2"
+    dest: "/etc/sysconfig/network-scripts/route-{{ item.device }}"
+    owner: root
+    group: root
+  with_items:
+    - "{{ iproute2_interfaces }}"
+
+- name: Ensure rule files are on the server.
+  template:
+    src: "rule.j2"
+    dest: "/etc/sysconfig/network-scripts/rule-{{ item.device }}"
+    owner: root
+    group: root
+  with_items:
+    - "{{ iproute2_interfaces }}"
